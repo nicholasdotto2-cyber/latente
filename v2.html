@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0c0a">
+<title>Il Profilo — 12 minuti, la versione vera di te</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="latente-bg-v2.jpg">
+<style>
+:root{
+  --bg:#0d0c0a; --card:#1a1815; --ink:#f0edea; --mut:#a39d94; --dim:#8a847b;
+  --glass:rgba(24,22,19,.55); --glass2:rgba(36,33,29,.8);
+  --line:rgba(255,255,255,.12); --line2:rgba(255,255,255,.28);
+  --amber:#e08536; --green:#6fae57; --blue:#8fa8d8; --pink:#dd9ab4;
+  --shadow:0 24px 60px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.35);
+}
+html{color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Space Grotesk',system-ui,sans-serif; font-size:16px; line-height:1.5;
+  overflow:hidden;
+}
+.serif{font-family:'Space Grotesk',system-ui,sans-serif;letter-spacing:-.02em}
+button,input,textarea{font-family:inherit}
+:is(button,input,textarea):focus-visible{outline:2px solid rgba(240,237,234,.55);outline-offset:2px}
+
+/* ---- fondale fotografico ---- */
+#photo,#photoBlur{
+  position:fixed;inset:0;pointer-events:none;
+  background:url('latente-bg-v2.jpg') center 55%/cover no-repeat var(--bg);
+  will-change:transform,opacity;
+}
+#photoBlur{filter:blur(26px) saturate(1.05);transform:scale(1.12);opacity:0}
+#veil{position:fixed;inset:0;pointer-events:none;background:rgba(13,12,10,.62);opacity:0}
+
+/* ---- splash + brand ---- */
+#splash{position:fixed;inset:0;z-index:100;pointer-events:none}
+#sbg{position:absolute;inset:0;background:var(--bg)}
+#coil{position:absolute;left:12%;right:12%;top:50%;height:2px;background:var(--amber);
+  box-shadow:0 0 22px rgba(224,133,54,.8),0 0 60px rgba(224,133,54,.4);transform:scaleX(0)}
+#skiphint{position:absolute;left:0;right:0;bottom:calc(34px + env(safe-area-inset-bottom));text-align:center;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);opacity:0}
+#brand .bword{font-size:clamp(52px,15vw,120px);font-weight:600;letter-spacing:-.045em;line-height:1;color:var(--ink)}
+#brand .btag{margin-top:18px;font-size:15px;color:var(--mut);letter-spacing:.01em}
+#brand .bcorner{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom));font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--mut)}
+#brand .bcorner.l{left:26px}
+#brand .bcorner.r{right:26px}
+
+#vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(120% 120% at 50% 40%,transparent 55%,rgba(0,0,0,.42) 100%)}
+#grain{position:fixed;inset:-50%;width:200%;height:200%;pointer-events:none;opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+/* ---- struttura ---- */
+#app{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;visibility:hidden}
+/* tastiera aperta sulle domande a risposta libera: card in alto e screen scrollabile */
+#question.kb{align-items:flex-start;justify-content:flex-start;overflow-y:auto;padding-top:calc(56px + env(safe-area-inset-top))}
+
+/* progress */
+#prog{position:fixed;top:0;left:0;right:0;display:flex;gap:5px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;z-index:50;opacity:0}
+.seg{flex:1;height:2px;background:rgba(255,255,255,.16);border-radius:2px;overflow:hidden}
+.seg i{display:block;height:100%;width:0;background:var(--amber);border-radius:2px}
+#chlabel{position:fixed;top:calc(26px + env(safe-area-inset-top));left:0;right:0;text-align:center;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--mut);z-index:50;opacity:0}
+
+/* ---- intro ---- */
+#intro .kicker{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);margin-bottom:22px}
+#intro h1{font-size:clamp(34px,7vw,62px);font-weight:550;line-height:1.05;text-align:center;max-width:15ch;letter-spacing:-.035em;text-wrap:balance}
+#intro h1 .am{color:var(--amber)}
+#intro .sub{color:var(--mut);margin:24px 0 40px;text-align:center;max-width:34ch;font-size:15px}
+.btn{
+  font-size:14px;font-weight:600;letter-spacing:.01em;color:#191512;
+  background:var(--amber);border:none;border-radius:100px;padding:15px 34px;cursor:pointer;
+  transition:box-shadow .18s ease;box-shadow:0 10px 30px rgba(224,133,54,.35);
+  will-change:transform;
+}
+.btn:hover{box-shadow:0 14px 38px rgba(224,133,54,.45)}
+#intro .note{margin-top:22px;font-size:12px;color:var(--dim)}
+/* ---- decorazioni brace ---- */
+#in-line{width:44px;height:2px;background:var(--amber);margin-bottom:26px;transform:scaleX(0)}
+#ch-big{font-size:clamp(90px,22vw,150px);font-weight:700;line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--amber);margin-bottom:20px}
+
+/* ---- capitolo ---- */
+.chnum{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--mut);margin-bottom:16px}
+.chtitle{font-size:clamp(30px,6.4vw,52px);font-weight:550;text-align:center;line-height:1.08;max-width:14ch;letter-spacing:-.03em}
+.chintro{color:var(--mut);margin-top:18px;text-align:center;max-width:36ch;font-size:15.5px}
+
+/* ---- domanda (pannello vetro) ---- */
+.qwrap{width:100%;max-width:620px;perspective:1200px}
+.qcard{
+  background:var(--glass);border:1px solid rgba(255,255,255,.12);border-radius:26px;
+  padding:clamp(22px,4.5vw,36px);
+  backdrop-filter:blur(24px) saturate(1.15);-webkit-backdrop-filter:blur(24px) saturate(1.15);
+  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
+  will-change:transform,opacity;
+}
+.qnum{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+.qtext{font-size:clamp(20px,4.6vw,26px);font-weight:550;line-height:1.25;margin-bottom:26px;letter-spacing:-.02em;text-wrap:pretty}
+.opt{
+  display:block;width:100%;text-align:left;font-size:15px;color:var(--ink);
+  background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;
+  padding:14px 18px;margin-bottom:10px;cursor:pointer;line-height:1.4;
+  transition:background .15s ease,border-color .15s ease;will-change:transform,opacity;
+}
+.opt:hover{background:rgba(255,255,255,.09);border-color:var(--line2)}
+#q-opts>.opt:last-of-type{margin-bottom:0}
+.opt.sel{background:rgba(224,133,54,.16);border-color:rgba(224,133,54,.55)}
+textarea.open{
+  width:100%;min-height:110px;resize:none;font-size:16px;color:var(--ink);
+  background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:16px;padding:16px;line-height:1.5;
+}
+textarea.open:focus{outline:none;border-color:var(--line2);background:rgba(255,255,255,.09)}
+.qfoot{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+.back{font-size:13px;color:var(--mut);background:none;border:none;cursor:pointer;padding:14px 10px}
+.back:hover{color:var(--ink)}
+.next{font-size:13.5px;font-weight:600;color:#191512;background:var(--amber);border:none;border-radius:100px;padding:13px 26px;cursor:pointer;opacity:.3;pointer-events:none;transition:opacity .2s}
+.next.on{opacity:1;pointer-events:auto}
+.charcount{font-size:11.5px;color:var(--dim)}
+
+/* ---- profilo ---- */
+#profile{overflow-y:auto;justify-content:flex-start;padding:70px 22px 60px;visibility:hidden}
+.pwrap{width:100%;max-width:640px;margin:0 auto}
+.pblock{opacity:0;transform:translateY(26px)}
+.hook{font-size:clamp(21px,4.8vw,28px);font-weight:500;line-height:1.32;letter-spacing:-.015em;margin-bottom:38px}
+.hook b{color:var(--amber);font-weight:600}
+.arch{
+  background:
+    radial-gradient(130% 110% at 88% -12%,rgba(224,133,54,.32),rgba(224,133,54,0) 58%),
+    radial-gradient(110% 100% at -8% 110%,rgba(190,70,45,.18),transparent 55%),
+    rgba(26,24,21,.65);
+  border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:32px 30px;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:var(--shadow);text-align:center;margin-bottom:16px;
+}
+.arch .lbl{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);margin-bottom:12px}
+.arch h2{font-size:clamp(34px,8vw,50px);font-weight:600;letter-spacing:-.03em;color:var(--ink);line-height:1.04}
+.arch p{color:var(--mut);font-size:15px;margin-top:16px;line-height:1.55;text-align:left}
+.panel{
+  background:rgba(26,24,21,.6);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:26px;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:var(--shadow);margin-bottom:16px;
+}
+.panel.radarbox-outer{background:radial-gradient(120% 100% at 100% -10%,rgba(150,170,210,.12),transparent 55%),rgba(26,24,21,.6)}
+.panel.contr{background:radial-gradient(120% 100% at -10% -10%,rgba(190,70,45,.18),transparent 55%),rgba(26,24,21,.6)}
+.panel .lbl{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--mut);margin-bottom:14px}
+.panel p{font-size:15px;line-height:1.6}
+.contr p{font-size:clamp(17px,4vw,20px);line-height:1.45;font-weight:500;letter-spacing:-.01em}
+.contr .more{font-size:13px;color:var(--mut);margin-top:12px;font-weight:400}
+.contr .vision{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);font-size:15.5px;font-weight:500;line-height:1.5}
+.contr .vision:empty{display:none}
+.contr .vision .quote{color:var(--amber)}
+.radarbox{display:flex;justify-content:center}
+svg#radar{width:100%;max-width:360px;height:auto}
+.step p{font-size:15.5px}
+.step .quote{color:var(--amber)}
+.cta{
+  background:radial-gradient(140% 130% at 50% -35%,rgba(224,133,54,.26),transparent 62%),rgba(26,24,21,.68);
+  border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:28px;text-align:center;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:var(--shadow);
+}
+.cta h3{font-size:21px;font-weight:600;letter-spacing:-.015em;margin-bottom:8px}
+.cta p{color:var(--mut);font-size:14px;margin-bottom:18px}
+.cta form{display:flex;gap:10px;max-width:420px;margin:0 auto}
+.cta input{
+  flex:1;font-size:16px;color:var(--ink);background:rgba(255,255,255,.07);
+  border:1px solid var(--line);border-radius:100px;padding:13px 20px;min-width:0;
+}
+.cta input:focus{outline:none;border-color:var(--line2)}
+.cta .btn{padding:13px 24px;white-space:nowrap}
+.cta .done{font-size:18px;color:var(--amber);font-weight:600}
+.foot{text-align:center;margin-top:34px;font-size:12px;color:var(--dim)}
+.foot button{background:none;border:none;color:var(--dim);text-decoration:underline;cursor:pointer;font-size:13px;padding:12px 6px}
+@media (max-width:520px){ .cta form{flex-direction:column} .qcard{border-radius:22px} }
+</style>
+</head>
+<body>
+
+<div id="photo"></div>
+<div id="photoBlur"></div>
+<div id="veil"></div>
+<div id="vignette"></div>
+<div id="grain"></div>
+
+<div id="splash">
+  <div id="sbg"></div>
+  <div id="coil"></div>
+  <div id="skiphint">tocca per saltare</div>
+</div>
+
+<div id="prog"></div>
+<div id="chlabel"></div>
+
+<div id="app">
+  <div class="screen" id="brand">
+    <h1 class="bword serif" id="bword">Latente</h1>
+    <div class="btag">L'energia che hai già. Ferma.</div>
+    <div class="bcorner l">Assessment</div>
+    <div class="bcorner r">Dodici minuti</div>
+  </div>
+
+  <div class="screen" id="intro">
+    <div id="in-line" aria-hidden="true"></div>
+    <div class="kicker">Dodici minuti · Trentuno domande</div>
+    <h1 class="serif">La distanza tra chi credi di essere e chi sei davvero</h1>
+    <p class="sub">Un profilo costruito sulle tue risposte. Non quello che vorresti sentirti dire.</p>
+    <button class="btn" id="start">Inizia</button>
+    <div class="note">Niente account. Le risposte restano sul tuo telefono.</div>
+  </div>
+
+  <div class="screen" id="chapter">
+    <div id="ch-big" aria-hidden="true"></div>
+    <div class="chnum" id="ch-num"></div>
+    <div class="chtitle serif" id="ch-title"></div>
+    <div class="chintro" id="ch-intro"></div>
+  </div>
+
+  <div class="screen" id="question">
+    <div class="qwrap">
+      <div class="qcard" id="qcard">
+        <div class="qnum" id="q-num"></div>
+        <div class="qtext" id="q-text"></div>
+        <div id="q-opts"></div>
+        <div class="qfoot">
+          <button class="back" id="q-back">indietro</button>
+          <span class="charcount" id="q-count"></span>
+          <button class="next" id="q-next">Avanti</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="profile">
+    <div class="pwrap">
+      <div class="pblock hook" id="p-hook"></div>
+      <div class="pblock arch">
+        <div class="lbl">Il tuo profilo</div>
+        <h2 id="p-arch"></h2>
+        <p id="p-archdesc"></p>
+      </div>
+      <div class="pblock panel radarbox-outer">
+        <div class="lbl">Le sei aree</div>
+        <div class="radarbox"><svg id="radar" viewBox="0 0 340 320"></svg></div>
+      </div>
+      <div class="pblock panel contr" id="p-contr-panel">
+        <div class="lbl">La tua contraddizione</div>
+        <p id="p-contr"></p>
+        <div class="more" id="p-contr-more"></div>
+        <div class="vision" id="p-vision"></div>
+      </div>
+      <div class="pblock panel step">
+        <div class="lbl">Il primo passo · sette giorni</div>
+        <p id="p-step"></p>
+      </div>
+      <div class="pblock cta" id="p-cta">
+        <h3>La diagnosi ce l'hai. Adesso serve il resto.</h3>
+        <p>Sto costruendo il percorso che parte esattamente da dove sei bloccato. Lascia l'email e sei dei primi.</p>
+        <form id="emailform">
+          <input type="email" id="email" placeholder="La tua email" aria-label="La tua email" required>
+          <button class="btn" type="submit">Voglio il percorso</button>
+        </form>
+      </div>
+      <div class="pblock foot">Fatto in 12 minuti, letto in 2. <button id="restart">Rifallo quando vuoi</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script>window.gsap||document.write('<script src="https://unpkg.com/gsap@3.13.0/dist/gsap.min.js"><\/script>')</script>
+<script>
+/* ============ DATI — copy da QUESTIONS.md rev.2 (voce NO-AI, scritta a mano) ============ */
+const CHAPTERS=[
+ {num:"Capitolo uno",title:"Chi credi di essere",intro:"Partiamo da come ti vedi. Di pancia, senza pensarci troppo."},
+ {num:"Capitolo due",title:"La tua giornata vera",intro:"Adesso lascia perdere com'è “di solito”. Parliamo di ieri."},
+ {num:"Capitolo tre",title:"Quello che consumi",intro:"Podcast, libri, video, corsi. Vediamo che fine fa tutta la roba che entra."},
+ {num:"Capitolo quattro",title:"Sotto la superficie",intro:"Qui di solito la gente rallenta. Prenditi il tempo che serve."},
+ {num:"Capitolo cinque",title:"Dove stai andando",intro:"Ultimo capitolo. Alza la testa."}
+];
+const Q=[
+ {id:1,ch:0,t:"Prima cosa: perché sei qui?",o:["Voglio capire perché non ingrano","Curiosità, me l'ha mandato qualcuno","Sto bene, voglio spingere di più","Sono in un momento no"]},
+ {id:2,ch:0,t:"Ti svegli alle tre di notte e la testa parte da sola. Dove va, di solito?",o:["Alla lista delle cose da fare domani","A un errore vecchio, una figuraccia, una cosa detta male","Al futuro: soldi, tempo, dove sto andando","Da nessuna parte. Crollo e dormo"]},
+ {id:3,ch:0,t:"Quando sai per certo che una cosa ti fa bene, poi la fai?",o:["Praticamente sempre","Spesso","A fasi: due settimane sì, poi sparisce","Raramente, e lo so da solo"],s:[0,1,2,3],d:1},
+ {id:4,ch:0,t:"Nelle settimane piene, qual è la cosa che difendi coi denti?",o:["Il sonno","L'allenamento","Il tempo per la mia testa","Le persone a cui tengo"]},
+ {id:5,ch:0,t:"Quando lavori a una cosa che conta, il tuo focus com'è?",o:["Tunnel. Sparisco, non esisto per nessuno","Buono, se l'ambiente mi aiuta","A onde: dieci minuti dentro, cinque fuori","Focus è una parola grossa"],s:[0,1,2,3],d:4},
+ {id:6,ch:0,t:"Che posto ha l'imparare cose nuove nella tua vita?",o:["È parte di chi sono, non riesco a smettere","Mi piace, quando trovo roba buona","A ondate: mi fisso, poi mollo","Poco. Vivo, più che studiare"],s:[0,1,2,3],d:2},
+ {id:7,ch:0,t:"Un amico molla tutto. Di nuovo. Te lo dice a cena: tu che gli rispondi?",o:["Lo ascolto e basta, capita","Gli ricordo che non è la fine del mondo","Lo aiuto a capire dove si è rotto","Gli dico quello che nessuno gli dice"]},
+ {id:8,ch:0,t:"Tra tre anni. Quanto è chiara l'immagine di dove vuoi essere?",o:["Nitida, la vedo","A grandi linee","Cambia ogni mese","Buio totale"],s:[0,1,2,3],d:5},
+ {id:9,ch:1,t:"Ieri sera, gli ultimi trenta minuti prima di chiudere gli occhi. Cosa avevi davanti?",o:["Un libro, o niente","Una serie","Il telefono. Scroll","Lavoro"],s:[0,1,2,3],d:3},
+ {id:10,ch:1,t:"Le ultime tre sere, a che ora hai spento davvero?",o:["Prima delle 23","Tra le 23 e mezzanotte","Dopo mezzanotte, almeno una volta","Dopo mezzanotte, tutte e tre"],s:[0,1,2,3],d:3},
+ {id:11,ch:1,t:"Stamattina come ti sei alzato?",o:["Carico","Ok, dopo il caffè","Trascinandomi","Non ricordo l'ultima volta che mi sono svegliato riposato"],s:[0,1,2,3],d:3},
+ {id:12,ch:1,t:"L'ultima volta che hai fatto una cosa importante: quante volte hai preso in mano il telefono?",o:["Zero, era in un'altra stanza","Un paio","Ho perso il conto","Il telefono era la cosa importante"],s:[0,1,2,3],d:4},
+ {id:13,ch:1,t:"Quanto resisti su una cosa sola prima di aprire un'altra scheda, un'altra app, qualsiasi cosa?",o:["Mezz'ora e più","Dieci, quindici minuti","Cinque minuti scarsi","Non me ne accorgo nemmeno più"],s:[0,1,2,3],d:4},
+ {id:14,ch:1,t:"Ieri, in che momento eri al massimo dell'energia?",o:["Mattina presto","Tarda mattinata / pomeriggio","Sera tardi","Mai. Ieri è stata una giornata piatta"],s:[0,1,2,3],d:3},
+ {id:15,ch:1,t:"Di tutte le ore sveglio di ieri, quante le rifaresti uguali?",o:["Quasi tutte","Più della metà","Poche","Ieri è passato e basta"],s:[0,1,2,3],d:4},
+ {id:16,ch:2,t:"Quanti contenuti su crescita, produttività, salute ti passano davanti in una settimana?",o:["Quasi zero","Un paio, scelti","Sono il mio sottofondo fisso","A 2x, mentre faccio altro"],s:[0,1,2,3],d:2},
+ {id:17,ch:2,t:"L'ultimo podcast o libro del genere. Dimmi una cosa che hai applicato e che fai ancora.",o:["Ce l'ho, precisa","L'ho applicata per un po', poi si è persa","Ricordo il concetto, ma non l'ho mai provato","Non ricordo nemmeno l'ultimo che ho sentito"],s:[0,1,2,3],d:2},
+ {id:18,ch:2,t:"I tuoi salvati. Video, articoli, post “da riguardare”. Quanti ne hai riaperti?",o:["Li riapro e li uso","Qualcuno","È un cimitero","Non salvo niente, tanto lo so come finisce"],s:[0,1,2,3],d:2},
+ {id:19,ch:2,t:"C'è una cosa che sai da almeno un anno che dovresti fare. E non la fai.",o:["Sì. E so anche perché non la faccio","Sì. E non ho idea del perché non parte","Più di una","No: quando so una cosa, la faccio"],s:[2,3,3,0],d:1},
+ {id:20,ch:2,t:"Trovi un metodo nuovo che ti convince. Cosa succede nei tre giorni dopo?",o:["Lo provo subito, e mollo quello di prima","Lo metto in lista","Lo salvo","Ne parlo con qualcuno e finisce lì"],s:[1,2,2,3],d:1},
+ {id:21,ch:2,t:"Le abitudini che hai provato a costruire nell'ultimo anno. Quante sono ancora vive oggi?",o:["Poche, ma vive","Diverse. Qualcuna regge","Tante. Sopravvissute quasi zero","A un certo punto ho smesso anche di iniziare"],s:[0,1,2,3],d:1},
+ {id:22,ch:3,t:"Sbagli una cosa che contava. La prima frase che ti parte in testa, quella vera?",o:["Niente. Non ci penso e vado avanti","“Sono sempre il solito”","“Lo sapevo”","“Ok. Cosa sistemo?”"],s:[2,3,2,0],d:6},
+ {id:23,ch:3,t:"C'è una cosa che rimandi non perché è difficile, ma perché ti mette a disagio. Quanto le giri intorno?",o:["Non ce l'ho, le cose scomode le faccio prima","Ogni tanto ci ripenso e la sposto","Ci giro intorno da settimane","Ci giro intorno da così tanto che ormai fa parte del panorama"],s:[0,1,2,3],d:6},
+ {id:24,ch:3,t:"Quando le cose vanno bene per un po', la tua testa cosa fa?",o:["Si annoia e va a cercarsi un casino nuovo","Trova il difetto","Aspetta che arrivi il problema","Se le gode"],s:[3,2,2,0],d:6},
+ {id:25,ch:3,t:"Rispetto a chi ti senti più spesso indietro?",o:["A nessuno, corro la mia gara","Ai colleghi o agli amici","A gente che nemmeno conosco, vista online","A una versione di me che non arriva mai"],s:[0,1,2,3],d:6},
+ {id:26,ch:3,t:"Scrivi la frase esatta che ti dici quando molli qualcosa. Le parole vere, come te le dici in testa.",open:true},
+ {id:27,ch:4,t:"Questa settimana hai fatto qualcosa che ti avvicina a dove vuoi essere tra tre anni?",o:["Più d'una cosa","Una, precisa","La settimana è stata piena, ma di altro","Non saprei"],s:[0,1,2,3],d:5},
+ {id:28,ch:4,t:"La tua settimana tipo è piena. Piena di cosa?",o:["Non lo so nemmeno io","Di cose che mi sono piovute addosso","Metà scelte, metà arrivate addosso","Di cose che ho scelto io"],s:[3,2,1,0],d:5},
+ {id:29,ch:4,t:"Se da domani avessi tre ore libere al giorno, garantite: sai già cosa ci faresti?",o:["Sì, al minuto","Un'idea ce l'ho","Le riempirei come riempio le altre","Onestamente? Panico"],s:[0,1,2,3],d:5},
+ {id:30,ch:4,t:"Dove vuoi essere tra tre anni? Una riga. Se ti esce vaga, scrivila vaga: anche quello dice qualcosa.",open:true},
+ {id:31,ch:4,t:"Ultima. Se questo profilo ti becca davvero, tu che ne fai?",o:["Voglio il piano. Subito","Lo leggo e ci penso","Lo faccio fare a qualcuno che mi conosce, poi ci confrontiamo","Niente, era curiosità"]}
+];
+
+const DIMS={1:"Azione",2:"Pratica",3:"Energia",4:"Attenzione",5:"Direzione",6:"Dialogo interno"};
+const ARCH={
+ 1:{n:"Il Teorico",d:"Sai già cosa dovresti fare. Lo sai da un pezzo, e potresti pure spiegarlo bene a qualcun altro. Ti manca solo il metro che sta tra sapere e iniziare — e su quel metro ci sei fermo da mesi. È lì che il tuo profilo si inceppa."},
+ 2:{n:"Il Collezionista",d:"Consumi più contenuti sulla crescita di quanti ne applicherai mai. Ogni podcast è una promessa, ogni salvato un buon proposito. Ma la roba che entra si accumula e basta, e intanto ti sembra di lavorare su di te. Ti servirebbe una cosa sola: smettere di imparare abbastanza a lungo da provare."},
+ 3:{n:"Lo Sprinter",d:"Parti forte, sempre. Il problema è il carburante: dormi poco, recuperi peggio, e il corpo presenta il conto proprio quando serviva la spinta. Di volontà ne hai da vendere. È la base sotto — sonno, recupero — che sta cedendo."},
+ 4:{n:"Il Disperso",d:"L'attenzione ti si sbriciola in mano. Dieci minuti dentro, cinque fuori, il telefono sempre a portata. E ogni cosa riceve solo un pezzetto di te — troppo poco perché cambi qualcosa. La tua energia c'è. È solo divisa in troppi rivoli."},
+ 5:{n:"L'Occupato",d:"La tua settimana è piena, e questo ti fa sentire in movimento. Ma pieno e diretto sono due cose diverse: gran parte di quello che riempie le tue giornate non ti porta dove dici di voler andare. Corri. La domanda è verso cosa."},
+ 6:{n:"Il Giudice",d:"Con gli altri sei comprensivo. Con te no. La voce che ti parte quando sbagli è più dura di qualsiasi capo, e lavora gratis, tutti i giorni. Il tuo freno più grosso ce l'hai in testa, ed è quel commento fisso a ogni sbaglio."}
+};
+const STEPS={
+ 1:"Quella cosa che sai da un anno. Per sette giorni, dieci minuti al giorno, solo quella. Non aggiungere niente. Non cambiare metodo a metà. Dieci minuti, la stessa cosa, sette volte.",
+ 2:"Sette giorni senza contenuti nuovi. Niente podcast, niente video del genere. Riapri UN salvato, uno solo, e applicalo tutti i giorni. Alla fine della settimana saprai se ti serviva impararlo o solo collezionarlo.",
+ 3:"Stessa ora di spegnimento per sette sere. Il telefono in un'altra stanza, non sul comodino a faccia in giù. Solo questo. Tutto il resto del tuo profilo migliora da solo se regge questa riga.",
+ 4:"Un blocco da venticinque minuti al giorno, su una cosa sola, col telefono in un'altra stanza. Uno solo. Ma vero: se lo interrompi, non conta. Sette giorni, sette blocchi.",
+ 5:"Ogni sera, una riga scritta: cosa ho fatto oggi che mi avvicina ai tre anni? Se la risposta è niente, scrivi niente. Dopo sette sere di “niente”, la direzione la trovi da solo.",
+ 6:"Ogni volta che parte la frase che ti dici quando molli, segnala. Un segno su un foglio, nient'altro. Niente giudizio, solo il conteggio. A fine settimana conta i segni: quella è la voce che stai pagando ogni giorno."
+};
+const HOOKS=[
+ "Alle tre di notte la tua testa fa liste. Le liste di giorno servono. Alle tre, dicono solo che <b>non ti spegni mai</b>.",
+ "Alle tre di notte torni sugli errori vecchi. Tienilo a mente: <b>c'entra con quasi tutto</b> quello che segue.",
+ "Alle tre di notte pensi a dove stai andando. Almeno <b>la domanda è quella giusta</b>. Vediamo le risposte.",
+ "Tu di notte dormi. <b>Bene.</b> Vediamo se il resto regge come il sonno."
+];
+/* coppie: [nome, condizione(ans,score), dim, testo(ans)] */
+const PAIRS=[
+ {k:"A",dim:3,test:a=>a[4]===0&&(a[9]>=2||a[10]>=2),
+  txt:a=>`Hai detto che il sonno è la cosa che difendi coi denti. Poi ieri sera gli ultimi trenta minuti erano ${a[9]===2?"di scroll":a[9]===3?"di lavoro":"davanti a uno schermo"}, e hai spento ${["prima delle 23","tra le 23 e mezzanotte","dopo mezzanotte, almeno una sera","dopo mezzanotte, tutte e tre le sere"][a[10]]}. Coi denti, dicevi.`},
+ {k:"B",dim:4,test:a=>a[5]<=1&&(a[12]>=2||a[13]>=2),
+  txt:a=>`Ti sei descritto come uno ${a[5]===0?"da tunnel":"dal focus buono"}. Poi, sull'ultima cosa importante, ${a[12]===2?"hai perso il conto delle volte che hai preso il telefono":a[12]===3?"il telefono era la cosa importante":"resisti pochi minuti prima di aprire altro"}. Il tunnel ha parecchie uscite.`},
+ {k:"C",dim:2,test:a=>a[6]<=1&&(a[17]>=2||a[18]===2),
+  txt:a=>`Imparare “è parte di chi sei”, hai detto. ${a[17]>=2?`Però dell'ultimo podcast ${a[17]===2?"ricordi il concetto ma non l'hai mai provato":"non ricordi nemmeno quale fosse"}${a[18]===2?", e i tuoi salvati li hai chiamati tu: un cimitero":""}`:`Però i tuoi salvati li hai chiamati tu: un cimitero`}. Tanta roba che entra, poca che esce.`},
+ {k:"D",dim:1,test:a=>a[3]<=1&&a[19]!==undefined&&a[19]<=2,
+  txt:a=>`Dici che quando sai che una cosa ti fa bene, la fai. Poi c'è quella cosa che sai da un anno${a[19]===2?" — più di una, hai detto":""}. Un anno. La conosci per nome e non parte.`},
+ {k:"E",dim:6,test:a=>(a[7]===0||a[7]===1)&&a[22]>=1&&a[22]<=2,
+  txt:a=>`All'amico che molla diresti “${a[7]===0?"capita":"non è la fine del mondo"}”. A te stesso dici “${a[22]===1?"sono sempre il solito":"lo sapevo"}”. Con tutti sei gentile, tranne che con uno.`},
+ {k:"F",dim:5,test:a=>a[8]<=1&&a[27]>=2,
+  txt:a=>`L'immagine dei tre anni ${a[8]===0?"la vedi nitida":"ce l'hai a grandi linee"}. Poi questa settimana, di passi verso quell'immagine: ${a[27]===2?"la settimana era piena, ma di altro":"non sapresti dirne uno"}. Hai la mappa appesa al muro e il motore spento.`}
+];
+/* tutte le condizioni delle PAIRS lavorano sugli INDICI di risposta, mai sugli score */
+
+/* ============ STATO ============ */
+const ans={};      // id -> option index
+const openTxt={};  // id -> testo
+let flow=[],pos=0; // flow di step: {type:'chapter',ch} | {type:'q',q}
+CHAPTERS.forEach((c,ci)=>{flow.push({type:'chapter',ch:ci});Q.filter(q=>q.ch===ci).forEach(q=>flow.push({type:'q',q}));});
+const WORKER_URL=null; // futuro: Cloudflare Worker per narrativa Haiku + salvataggio email
+const track=(ev,data)=>{try{const log=JSON.parse(localStorage.getItem('ev2')||'[]');log.push({ev,data,t:Date.now()});localStorage.setItem('ev2',JSON.stringify(log));}catch(e){} if(WORKER_URL)navigator.sendBeacon&&navigator.sendBeacon(WORKER_URL+'/ev',JSON.stringify({ev,data}));};
+
+/* ============ MOTION (GSAP) ============ */
+const mm=gsap.matchMedia();
+let D=1; // moltiplicatore durate
+mm.add({reduce:"(prefers-reduced-motion: reduce)",ok:"(prefers-reduced-motion: no-preference)"},(ctx)=>{D=ctx.conditions.reduce?0.001:1;});
+gsap.defaults({ease:"power3.out"});
+
+/* grana viva (spenta se l'utente preferisce meno movimento) */
+if(D>=1)(function grainLoop(){gsap.set("#grain",{x:gsap.utils.random(-30,30),y:gsap.utils.random(-30,30)});setTimeout(grainLoop,90);})();
+
+/* pressione fisica dei tasti: affonda verso il punto di contatto, ritorno a molla */
+(function pressFX(){
+  const sel=".opt,.btn,.next,.back";
+  const held=new Map(); /* pointerId -> elemento: regge il multitouch */
+  addEventListener("pointerdown",e=>{
+    const b=e.target.closest(sel);if(!b)return;
+    held.set(e.pointerId,b);
+    const r=b.getBoundingClientRect();
+    b.style.transformOrigin=`${e.clientX-r.left}px ${e.clientY-r.top}px`;
+    gsap.to(b,{scale:.96,duration:.1*D,ease:"power2.out",overwrite:"auto"});
+  },{passive:true});
+  const up=e=>{
+    const b=held.get(e.pointerId);if(!b)return;held.delete(e.pointerId);
+    gsap.to(b,{scale:1,duration:.5*D,ease:"elastic.out(1.1,.5)",overwrite:"auto"});
+  };
+  addEventListener("pointerup",up,{passive:true});
+  addEventListener("pointercancel",up,{passive:true});
+})();
+
+const $=s=>document.querySelector(s);
+const show=el=>gsap.set(el,{visibility:"visible"});
+const hide=el=>gsap.set(el,{visibility:"hidden"});
+
+/* split parole per titoli */
+function splitWords(el){
+  const words=el.textContent.trim().split(/\s+/);
+  el.innerHTML=words.map(w=>`<span style="display:inline-block;overflow:hidden;vertical-align:bottom"><span style="display:inline-block;will-change:transform">${w}</span></span>`).join(" ");
+  return el.querySelectorAll("span > span");
+}
+/* split lettere per il wordmark */
+function splitLetters(el){
+  const t=el.textContent;
+  el.innerHTML=[...t].map(c=>`<span style="display:inline-block;will-change:transform">${c===" "?"&nbsp;":c}</span>`).join("");
+  return el.querySelectorAll("span");
+}
+
+/* progress bar */
+const progEl=$("#prog");
+CHAPTERS.forEach(()=>{const s=document.createElement("div");s.className="seg";s.innerHTML="<i></i>";progEl.appendChild(s);});
+function updProg(){
+  const cur=flow[pos];if(!cur)return;
+  const ci=cur.type==='chapter'?cur.ch:cur.q.ch;
+  $("#chlabel").textContent=CHAPTERS[ci].num;
+  const inCh=Q.filter(q=>q.ch===ci);
+  const done=inCh.filter(q=>ans[q.id]!==undefined||openTxt[q.id]!==undefined).length;
+  document.querySelectorAll(".seg i").forEach((el,i)=>{
+    gsap.to(el,{width:(i<ci?100:i===ci?(done/inCh.length)*100:0)+"%",duration:.5*D,overwrite:"auto"});
+  });
+}
+
+/* ============ INTRO ============ */
+function startIntro(){
+  show("#intro");
+  const w=splitWords($("#intro h1"));
+  /* le ultime tre parole ("chi sei davvero") in ambra */
+  Array.from(w).slice(-3).forEach(s=>s.classList.add("am"));
+  const tl=gsap.timeline();
+  tl.fromTo("#in-line",{scaleX:0},{scaleX:1,duration:.6*D,ease:"power2.out"})
+    .from($("#intro .kicker"),{autoAlpha:0,y:14,duration:.7*D},"-=.25")
+    .from(w,{yPercent:110,duration:.9*D,stagger:.05*D,ease:"power4.out"},"-=.3")
+    .from($("#intro .sub"),{autoAlpha:0,y:16,duration:.7*D},"-=.4")
+    .from($("#start"),{autoAlpha:0,y:16,scale:.95,duration:.6*D,ease:"back.out(1.7)"},"-=.35")
+    .from($("#intro .note"),{autoAlpha:0,duration:.6*D},"-=.2");
+}
+
+/* ============ SPLASH: carica e rilascio → wordmark → intro ============ */
+function runSplash(){
+  const coil=$("#coil");
+  show("#brand");
+  const letters=splitLetters($("#bword"));
+  gsap.set(letters,{scale:2.4,autoAlpha:0});
+  gsap.set(["#brand .btag","#brand .bcorner"],{autoAlpha:0,y:12});
+  gsap.set("#photo",{scale:1.1});
+
+  const tl=gsap.timeline();
+  /* un tap salta tutto il cinema */
+  const onSkip=()=>{if(tl.progress()<1)tl.progress(1);};
+  addEventListener("pointerdown",onSkip);
+  tl.eventCallback("onComplete",()=>{removeEventListener("pointerdown",onSkip);try{localStorage.setItem("lat2_intro","1")}catch(e){}});
+  /* 1. la linea si carica → 2. pulsa come una molla → 3. si comprime → 4. rilascio: foto e wordmark */
+  tl.fromTo(coil,{scaleX:0,transformOrigin:"left center"},{scaleX:1,duration:.8*D,ease:"power2.inOut"})
+    .to(coil,{scaleY:3,duration:.14*D,yoyo:true,repeat:3,ease:"sine.inOut"})
+    .to(coil,{scaleX:.05,transformOrigin:"center center",duration:.5*D,ease:"back.in(2)"})
+    .to("#sbg",{autoAlpha:0,duration:.25*D,ease:"power1.in"})
+    .to(coil,{scaleY:60,autoAlpha:0,duration:.4*D,ease:"power2.out"},"<")
+    .add(()=>{$("#splash").remove();})
+    .add("brandin")
+    .to(letters,{scale:1,autoAlpha:1,duration:.55*D,stagger:.055*D,ease:"back.out(2.2)"},"brandin")
+    .to("#brand",{keyframes:{x:[0,-5,4,-2,0]},duration:.35*D,ease:"power2.out"},"brandin+=.5")
+    .to("#photo",{scale:1,duration:3*D,ease:"power2.out"},"brandin")
+    .to("#brand .btag",{autoAlpha:1,y:0,duration:.5*D},"brandin+=.8")
+    .to("#brand .bcorner",{autoAlpha:1,y:0,duration:.5*D},"<")
+    .to(letters,{autoAlpha:0,y:-40,duration:.5*D,stagger:.03*D,ease:"power2.in"},"brandin+=2.2")
+    .to(["#brand .btag","#brand .bcorner"],{autoAlpha:0,duration:.4*D},"<")
+    .to("#photoBlur",{autoAlpha:1,duration:1*D,ease:"power2.inOut"},"brandin+=2.4")
+    .to("#veil",{autoAlpha:.9,duration:1*D,ease:"power2.inOut"},"<")
+    .add(()=>{hide("#brand");startIntro();},"brandin+=3.1")
+    .to("#skiphint",{autoAlpha:.85,duration:.5*D},1.1);
+}
+let seenIntro=false;try{seenIntro=!!localStorage.getItem("lat2_intro")}catch(e){}
+if(D<1||seenIntro){ /* reduced motion o seconda visita: niente cinema, dritti all'intro */
+  const sp=$("#splash");if(sp)sp.remove();
+  hide("#brand");
+  gsap.set("#photoBlur",{autoAlpha:1});gsap.set("#veil",{autoAlpha:.9});
+  startIntro();
+}else{
+  runSplash();
+}
+$("#start").addEventListener("click",()=>{
+  track("start");
+  gsap.to("#intro",{autoAlpha:0,y:-30,duration:.5*D,onComplete:()=>{hide("#intro");gsap.set("#intro",{clearProps:"all"});gsap.to(["#prog","#chlabel"],{autoAlpha:1,duration:.6*D});go(0);}});
+});
+
+/* ============ FLOW ============ */
+function go(i){pos=i;updProg();const st=flow[i];st.type==='chapter'?showChapter(st.ch):showQuestion(st.q);}
+
+function showChapter(ci){
+  busy=false;
+  const c=CHAPTERS[ci];
+  /* il capitolo 2 ascolta: se hai detto che difendi il sonno, te lo ricorda */
+  const introTxt=(ci===1&&ans[4]===0)?"Hai detto che il sonno lo difendi coi denti. Vediamo com'è andata ieri.":c.intro;
+  $("#ch-num").textContent=c.num;$("#ch-title").textContent=c.title;$("#ch-intro").textContent=introTxt;
+  $("#ch-big").textContent="0"+(ci+1);
+  show("#chapter");
+  const w=splitWords($("#ch-title"));
+  const tl=gsap.timeline();
+  tl.fromTo("#chapter",{autoAlpha:0},{autoAlpha:1,duration:.4*D})
+    .fromTo("#ch-big",{clipPath:"inset(0 100% 0 0)"},{clipPath:"inset(0 0% 0 0)",duration:.7*D,ease:"power3.inOut"},"-=.1")
+    .from($("#ch-num"),{autoAlpha:0,letterSpacing:".6em",duration:.8*D},"-=.2")
+    .from(w,{yPercent:110,duration:.85*D,stagger:.07*D,ease:"power4.out"},"-=.4")
+    .from($("#ch-intro"),{autoAlpha:0,y:14,duration:.7*D},"-=.3")
+    /* pausa di lettura fissa (non scalata: chi ha reduced-motion deve poter leggere) */
+    .to("#chapter",{autoAlpha:0,scale:.96,filter:"blur(6px)",duration:.6*D},"+="+(D<1?1.3:1.1))
+    .add(()=>{$("#chapter").onclick=null;hide("#chapter");gsap.set("#chapter",{clearProps:"all"});go(pos+1);});
+  /* un tap salta l'attesa */
+  $("#chapter").onclick=()=>{if(tl.progress()<1)tl.progress(1);};
+  track("chapter",{ch:ci});
+}
+
+function showQuestion(q){
+  busy=false;
+  $("#q-num").textContent=`Domanda ${q.id} di ${Q.length}`;
+  $("#q-text").textContent=q.t;
+  const box=$("#q-opts");box.innerHTML="";$("#q-count").textContent="";
+  const next=$("#q-next");next.classList.remove("on");
+  if(q.open){
+    const ta=document.createElement("textarea");ta.className="open";ta.maxLength=280;ta.placeholder="Scrivi qui. Con parole tue.";
+    ta.value=openTxt[q.id]||"";if(ta.value)next.classList.add("on");
+    ta.addEventListener("input",()=>{$("#q-count").textContent=`${ta.value.length}/280`;ta.value.trim().length>1?next.classList.add("on"):next.classList.remove("on");openTxt[q.id]=ta.value;});
+    /* tastiera iOS: card in alto finché scrivi, così textarea e "Avanti" restano visibili */
+    ta.addEventListener("focus",()=>$("#question").classList.add("kb"));
+    ta.addEventListener("blur",()=>$("#question").classList.remove("kb"));
+    box.appendChild(ta);
+    next.onclick=()=>{openTxt[q.id]=ta.value.trim();advance();};
+  }else{
+    q.o.forEach((label,oi)=>{
+      const b=document.createElement("button");b.className="opt"+(ans[q.id]===oi?" sel":"");b.textContent=label;
+      b.addEventListener("click",()=>{
+        if(busy)return;
+        box.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");
+        ans[q.id]=oi;updProg();
+        if(navigator.vibrate)navigator.vibrate(8);
+        gsap.delayedCall(.22*D,advance); /* la pressione fisica la gestisce pressFX */
+      });
+      box.appendChild(b);
+    });
+    next.onclick=advance;
+    if(ans[q.id]!==undefined)next.classList.add("on");
+  }
+  $("#q-back").style.visibility=pos>1?"visible":"hidden";
+  show("#question");
+  /* il fondale respira: micro-deriva a ogni domanda */
+  gsap.to("#photoBlur",{xPercent:gsap.utils.random(-1.2,1.2),yPercent:gsap.utils.random(-1,1),scale:gsap.utils.random(1.12,1.16),duration:1.6*D,ease:"power2.out",overwrite:"auto"});
+  const card=$("#qcard");
+  /* solo transform+opacity: niente filter/rotationX sopra il backdrop-filter della card */
+  const tl=gsap.timeline();
+  tl.fromTo("#question",{autoAlpha:0},{autoAlpha:1,duration:.2*D})
+    .fromTo(card,{x:56,autoAlpha:0,scale:.98},{x:0,autoAlpha:1,scale:1,duration:.5*D,ease:"power4.out"})
+    .from(box.children,{x:26,autoAlpha:0,duration:.35*D,stagger:.045*D},"-=.25");
+}
+function leaveQuestion(cb){
+  gsap.to($("#qcard"),{x:-48,autoAlpha:0,duration:.3*D,ease:"power2.in",
+    onComplete:()=>{gsap.set("#question",{autoAlpha:0});hide("#question");gsap.set($("#qcard"),{clearProps:"transform,opacity,visibility"});cb();}});
+}
+let busy=false; /* lock di transizione: senza, un doppio tap salta domande */
+function advance(){
+  if(busy)return;
+  const st=flow[pos];
+  if(st.type==='q'&&!st.q.open&&ans[st.q.id]===undefined)return;
+  busy=true;
+  leaveQuestion(()=>{ pos+1<flow.length?go(pos+1):buildProfile(); });
+}
+$("#q-back").addEventListener("click",()=>{
+  if(busy)return;
+  let p=pos-1;while(p>0&&flow[p].type!=='q')p--;
+  if(p>0){busy=true;leaveQuestion(()=>go(p));}
+});
+
+/* ============ SCORING ============ */
+function compute(){
+  const dims={1:0,2:0,3:0,4:0,5:0,6:0};
+  Q.forEach(q=>{if(q.s&&ans[q.id]!==undefined)dims[q.d]+=q.s[ans[q.id]];});
+  Object.keys(dims).forEach(k=>dims[k]=Math.round(dims[k]/12*100));
+  const fired=PAIRS.filter(p=>{try{return p.test(mapAns())}catch(e){return false}});
+  /* archetipo: dim peggiore; pareggio → dim con coppia scattata → priorità 2,1,6,4,3,5 */
+  const prio=[2,1,6,4,3,5];
+  let worst=Math.max(...Object.values(dims));
+  let cand=Object.keys(dims).filter(k=>dims[k]===worst).map(Number);
+  if(cand.length>1){const withPair=cand.filter(d=>fired.some(p=>p.dim===d));if(withPair.length)cand=withPair;}
+  cand.sort((a,b)=>prio.indexOf(a)-prio.indexOf(b));
+  const arch=cand[0];
+  /* contraddizione principale: sulla dim archetipo se c'è, sennò la prima */
+  let main=fired.find(p=>p.dim===arch)||fired[0]||null;
+  return {dims,arch,fired,main};
+}
+function mapAns(){ /* per PAIRS: indice di risposta per id */
+  const a={};Q.forEach(q=>{a[q.id]=ans[q.id]});
+  return a;
+}
+
+/* ============ PROFILO ============ */
+function radar(dims){
+  const cx=170,cy=160,R=118,N=6,keys=[1,2,3,4,5,6];
+  const pt=(i,r)=>{const ang=-Math.PI/2+i*2*Math.PI/N;return[cx+r*Math.cos(ang),cy+r*Math.sin(ang)]};
+  let g='';
+  for(let ring=1;ring<=4;ring++){const r=R*ring/4;g+=`<polygon points="${keys.map((_,i)=>pt(i,r).join(',')).join(' ')}" fill="none" stroke="rgba(240,237,234,.14)" stroke-width="1"/>`;}
+  keys.forEach((_,i)=>{const[x,y]=pt(i,R);g+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(240,237,234,.14)"/>`;});
+  const vals=keys.map((k,i)=>pt(i,R*Math.max(.08,(100-dims[k])/100)));
+  g+=`<polygon id="rshape" points="${vals.map(p=>p.join(',')).join(' ')}" fill="rgba(224,133,54,.22)" stroke="var(--amber)" stroke-width="2" stroke-linejoin="round"/>`;
+  vals.forEach(p=>{g+=`<circle cx="${p[0]}" cy="${p[1]}" r="3.4" fill="var(--amber)"/>`;});
+  keys.forEach((k,i)=>{const[x,y]=pt(i,R+26);g+=`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" fill="#a39d94" font-size="11.5" font-family="Space Grotesk">${DIMS[k]}</text>`;});
+  $("#radar").innerHTML=g;
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])).replace(/[“”]/g,"'");
+function buildProfile(){
+  track("complete",{ans,openTxt});
+  const {dims,arch,fired,main}=compute();
+  $("#p-hook").innerHTML=HOOKS[ans[2]??0];
+  $("#p-arch").textContent=ARCH[arch].n;
+  $("#p-archdesc").textContent=ARCH[arch].d;
+  radar(dims);
+  if(main){
+    $("#p-contr").textContent=main.txt(mapAns());
+    $("#p-contr-more").textContent=fired.length>1?`E non è l'unica: ne ho contate altre ${fired.length-1}.`:"";
+  }else{
+    $("#p-contr").textContent="Le tue risposte tengono insieme. O sei stato onesto fino in fondo, o molto bravo a raccontartela. Il percorso lo scopre.";
+    $("#p-contr-more").textContent="";
+  }
+  /* le parole scritte a mano dall'utente tornano nel profilo: è quello che nessun test fa */
+  const vision=(openTxt[30]||"").trim();
+  $("#p-vision").innerHTML="";
+  if(vision&&arch!==5){ /* per l'Occupato la frase finisce già nello step: niente doppione */
+    $("#p-vision").innerHTML=`Tra tre anni hai scritto, parole tue: <span class="quote">“${esc(vision)}”</span>. Tienila lì mentre leggi il resto.`;
+  }
+  let step=STEPS[arch];
+  if(arch===6&&(openTxt[26]||"").trim()) step=`Ogni volta che ti parte la frase che hai scritto tu — “${esc(openTxt[26].trim())}” — segnala. Un segno su un foglio, nient'altro. Niente giudizio, solo il conteggio. A fine settimana conta i segni: quella è la voce che stai pagando ogni giorno.`;
+  if(arch===5&&vision) step=`Hai scritto: “${esc(vision)}”. Ogni sera, una riga: cosa ho fatto oggi che mi avvicina a quella frase? Se la risposta è niente, scrivi niente. Dopo sette sere di “niente”, la direzione la trovi da solo.`;
+  $("#p-step").innerHTML=step.replace(/“(.+?)”/g,'<span class="quote">“$1”</span>');
+  gsap.to(["#prog","#chlabel"],{autoAlpha:0,duration:.4*D});
+  gsap.to("#veil",{autoAlpha:1,duration:.6*D});
+  show("#profile");
+  const blocks=document.querySelectorAll(".pblock");
+  const tl=gsap.timeline();
+  tl.fromTo("#profile",{autoAlpha:0},{autoAlpha:1,duration:.4*D})
+    .to(blocks,{autoAlpha:1,y:0,duration:.8*D,stagger:.18*D,ease:"power3.out"})
+    .fromTo("#rshape",{scale:.4,svgOrigin:"170 160",autoAlpha:0},{scale:1,autoAlpha:1,duration:1*D,ease:"elastic.out(1,.6)"},"-=1.2");
+}
+$("#emailform").addEventListener("submit",e=>{
+  e.preventDefault();
+  const em=$("#email").value.trim();if(!em)return;
+  track("email",{email:em});
+  try{localStorage.setItem("lead2",em);}catch(err){}
+  if(WORKER_URL)fetch(WORKER_URL+"/lead",{method:"POST",body:JSON.stringify({email:em,ans,openTxt})}).catch(()=>{});
+  $("#p-cta").innerHTML='<p class="done">Sei dentro. Ti scrivo quando il percorso apre. Una mail, non dieci.</p>';
+});
+$("#restart").addEventListener("click",()=>location.reload());
+</script>
+</body>
+</html>
