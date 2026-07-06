@@ -45,6 +45,21 @@ button,input,textarea{font-family:inherit}
   box-shadow:0 0 22px rgba(224,133,54,.8),0 0 60px rgba(224,133,54,.4);transform:scaleX(0)}
 #skiphint{position:absolute;left:0;right:0;bottom:calc(34px + env(safe-area-inset-bottom));text-align:center;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);opacity:0}
 #brand .bword{font-size:clamp(52px,15vw,120px);font-weight:600;letter-spacing:-.045em;line-height:1;color:var(--ink)}
+/* wordmark aurora: un unico gradiente iridescente clippato sul testo, in negativo (freddi) rispetto al fondale ambra */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  #bword span{
+    color:transparent;
+    background-image:
+      radial-gradient(42% 70% at 18% 30%,#7fa4ff 0%,rgba(127,164,255,0) 62%),
+      radial-gradient(52% 78% at 44% 72%,#ff4fa0 0%,rgba(255,79,160,0) 64%),
+      radial-gradient(46% 66% at 72% 28%,#a06bff 0%,rgba(160,107,255,0) 60%),
+      radial-gradient(50% 76% at 92% 70%,#ff8a55 0%,rgba(255,138,85,0) 62%),
+      linear-gradient(92deg,#5f7cff 0%,#c96bff 42%,#ff4f8e 74%,#ff8a55 100%);
+    background-repeat:no-repeat;
+    background-position:calc(var(--gx,0px) + var(--off,0px)) 50%;
+    -webkit-background-clip:text;background-clip:text;
+  }
+}
 #brand .btag{margin-top:18px;font-size:15px;color:var(--mut);letter-spacing:.01em}
 #brand .bcorner{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom));font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--mut)}
 #brand .bcorner.l{left:26px}
@@ -442,11 +457,32 @@ function startIntro(){
     .from($("#intro .note"),{autoAlpha:0,duration:.6*D},"-=.2");
 }
 
+/* aurora nel wordmark: ogni lettera mostra la sua fetta di un gradiente unico largo quanto la parola */
+function paintWordmark(letters){
+  const word=$("#bword");
+  const paint=()=>{ /* misura DOPO il caricamento del font: le fette devono combaciare */
+    const r=word.getBoundingClientRect();
+    const w=Math.max(1,r.width);
+    letters.forEach(sp=>{
+      sp.style.backgroundSize=w+"px 100%";
+      sp.style.setProperty("--off",(r.left-sp.getBoundingClientRect().left)+"px");
+    });
+    word.style.setProperty("--gx","0px");
+    if(D>=1){ /* deriva lenta + shimmer di tinta: il gradiente respira dentro le lettere */
+      gsap.to(word,{"--gx":Math.round(w*.14)+"px",duration:5,yoyo:true,repeat:-1,ease:"sine.inOut",overwrite:"auto"});
+      gsap.to(word,{filter:"hue-rotate(24deg)",duration:4,yoyo:true,repeat:-1,ease:"sine.inOut",overwrite:"auto"});
+    }
+  };
+  paint();
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(paint);
+}
+
 /* ============ SPLASH: carica e rilascio → wordmark → intro ============ */
 function runSplash(){
   const coil=$("#coil");
   show("#brand");
   const letters=splitLetters($("#bword"));
+  paintWordmark(letters);
   gsap.set(letters,{scale:2.4,autoAlpha:0});
   gsap.set(["#brand .btag","#brand .bcorner"],{autoAlpha:0,y:12});
   gsap.set("#photo",{scale:1.1});
