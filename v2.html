@@ -45,16 +45,17 @@ button,input,textarea{font-family:inherit}
   box-shadow:0 0 22px rgba(224,133,54,.8),0 0 60px rgba(224,133,54,.4);transform:scaleX(0)}
 #skiphint{position:absolute;left:0;right:0;bottom:calc(34px + env(safe-area-inset-bottom));text-align:center;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);opacity:0}
 #brand .bword{font-size:clamp(52px,15vw,120px);font-weight:600;letter-spacing:-.045em;line-height:1;color:var(--ink)}
-/* wordmark aurora: un unico gradiente iridescente clippato sul testo, in negativo (freddi) rispetto al fondale ambra */
+/* wordmark aurora: i toni caldi del fondale (ambra/brace) convertiti in negativo → azzurro/ciano/teal.
+   Il gradiente è più largo della parola (150%): la deriva non lascia mai lettere scoperte */
 @supports ((-webkit-background-clip:text) or (background-clip:text)){
   #bword span{
     color:transparent;
     background-image:
-      radial-gradient(42% 70% at 18% 30%,#7fa4ff 0%,rgba(127,164,255,0) 62%),
-      radial-gradient(52% 78% at 44% 72%,#ff4fa0 0%,rgba(255,79,160,0) 64%),
-      radial-gradient(46% 66% at 72% 28%,#a06bff 0%,rgba(160,107,255,0) 60%),
-      radial-gradient(50% 76% at 92% 70%,#ff8a55 0%,rgba(255,138,85,0) 62%),
-      linear-gradient(92deg,#5f7cff 0%,#c96bff 42%,#ff4f8e 74%,#ff8a55 100%);
+      radial-gradient(38% 70% at 24% 30%,#55c8ff 0%,rgba(85,200,255,0) 60%),
+      radial-gradient(46% 78% at 42% 72%,#4c7dff 0%,rgba(76,125,255,0) 62%),
+      radial-gradient(42% 66% at 60% 26%,#9f8bff 0%,rgba(159,139,255,0) 58%),
+      radial-gradient(46% 76% at 78% 70%,#47e6d2 0%,rgba(71,230,210,0) 60%),
+      linear-gradient(92deg,#2e9fe6 0%,#5f8dff 40%,#8f7bff 62%,#55c8ff 82%,#47e6d2 100%);
     background-repeat:no-repeat;
     background-position:calc(var(--gx,0px) + var(--off,0px)) 50%;
     -webkit-background-clip:text;background-clip:text;
@@ -460,17 +461,22 @@ function startIntro(){
 /* aurora nel wordmark: ogni lettera mostra la sua fetta di un gradiente unico largo quanto la parola */
 function paintWordmark(letters){
   const word=$("#bword");
-  const paint=()=>{ /* misura DOPO il caricamento del font: le fette devono combaciare */
-    const r=word.getBoundingClientRect();
-    const w=Math.max(1,r.width);
+  const paint=()=>{
+    /* fette calcolate ACCUMULANDO le larghezze di layout: immune a transform e a offsetParent */
+    const w=Math.max(1,word.offsetWidth);
+    const M=Math.round(w*.25); /* margine di riserva: la deriva (±9%) non scopre mai le lettere */
+    const LS=parseFloat(getComputedStyle(word).letterSpacing)||0;
+    let acc=0;
     letters.forEach(sp=>{
-      sp.style.backgroundSize=w+"px 100%";
-      sp.style.setProperty("--off",(r.left-sp.getBoundingClientRect().left)+"px");
+      sp.style.backgroundSize=Math.round(w*1.5)+"px 100%";
+      sp.style.setProperty("--off",(-(M+acc))+"px");
+      acc+=sp.offsetWidth+LS;
     });
-    word.style.setProperty("--gx","0px");
     if(D>=1){ /* deriva lenta + shimmer di tinta: il gradiente respira dentro le lettere */
-      gsap.to(word,{"--gx":Math.round(w*.14)+"px",duration:5,yoyo:true,repeat:-1,ease:"sine.inOut",overwrite:"auto"});
-      gsap.to(word,{filter:"hue-rotate(24deg)",duration:4,yoyo:true,repeat:-1,ease:"sine.inOut",overwrite:"auto"});
+      gsap.fromTo(word,{"--gx":(-Math.round(w*.09))+"px"},{"--gx":Math.round(w*.09)+"px",duration:6,yoyo:true,repeat:-1,ease:"sine.inOut",overwrite:"auto"});
+      gsap.to(word,{filter:"hue-rotate(18deg)",duration:4,yoyo:true,repeat:-1,ease:"sine.inOut",overwrite:"auto"});
+    }else{
+      word.style.setProperty("--gx","0px");
     }
   };
   paint();
