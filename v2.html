@@ -49,7 +49,7 @@ button,input,textarea{font-family:inherit}
    Il gradiente è più largo della parola (150%): la deriva non lascia mai lettere scoperte */
 @supports ((-webkit-background-clip:text) or (background-clip:text)){
   #bword span{
-    color:transparent;
+    color:transparent;-webkit-text-fill-color:transparent; /* Safari: color:transparent da solo a volte non basta */
     background-image:
       radial-gradient(38% 70% at 24% 30%,#55c8ff 0%,rgba(85,200,255,0) 60%),
       radial-gradient(46% 78% at 42% 72%,#4c7dff 0%,rgba(76,125,255,0) 62%),
@@ -57,7 +57,9 @@ button,input,textarea{font-family:inherit}
       radial-gradient(46% 76% at 78% 70%,#47e6d2 0%,rgba(71,230,210,0) 60%),
       linear-gradient(92deg,#2e9fe6 0%,#5f8dff 40%,#8f7bff 62%,#55c8ff 82%,#47e6d2 100%);
     background-repeat:no-repeat;
-    background-position:calc(var(--gx,0px) + var(--off,0px)) 50%;
+    /* background-position è impostato per-lettera via JS (inline style, letterale in px:
+       niente custom property --off per-lettera, solo --gx condiviso per la deriva) */
+    background-position:var(--gx,0px) 50%;
     -webkit-background-clip:text;background-clip:text;
   }
 }
@@ -224,7 +226,7 @@ svg#radar{width:100%;max-width:360px;height:auto}
 
   <div class="screen" id="intro">
     <div id="in-line" aria-hidden="true"></div>
-    <div class="kicker">Dodici minuti · Trentuno domande</div>
+    <div class="kicker">Dodici minuti. Nessuna risposta giusta, solo quella vera.</div>
     <h1 class="serif">La distanza tra chi credi di essere e chi sei davvero</h1>
     <p class="sub">Un profilo costruito sulle tue risposte. Non quello che vorresti sentirti dire.</p>
     <button class="btn" id="start">Inizia</button>
@@ -296,44 +298,42 @@ svg#radar{width:100%;max-width:360px;height:auto}
 const SHARE_THEME={bg:"#0d0c0a",ink:"#f0edea",mut:"#a39d94",amber:"#e08536",glow:"rgba(224,133,54,.4)",sans:"'Space Grotesk',sans-serif",title:"600 92px 'Space Grotesk',sans-serif",quote:"italic 400 38px 'Space Grotesk',sans-serif",tag:"italic 500 44px 'Space Grotesk',sans-serif"};
 /* ============ DATI — copy da QUESTIONS.md rev.2 (voce NO-AI, scritta a mano) ============ */
 const CHAPTERS=[
- {num:"Capitolo uno",title:"Chi credi di essere",intro:"Partiamo da come ti vedi. Di pancia, senza pensarci troppo."},
+ {num:"Capitolo uno",title:"Come ti vedi",intro:"Partiamo da come ti vedi. Di pancia, senza pensarci troppo."},
  {num:"Capitolo due",title:"La tua giornata vera",intro:"Adesso lascia perdere com'è “di solito”. Parliamo di ieri."},
  {num:"Capitolo tre",title:"Quello che consumi",intro:"Podcast, libri, video, corsi. Vediamo che fine fa tutta la roba che entra."},
  {num:"Capitolo quattro",title:"Sotto la superficie",intro:"Qui di solito la gente rallenta. Prenditi il tempo che serve."},
  {num:"Capitolo cinque",title:"Dove stai andando",intro:"Ultimo capitolo. Alza la testa."}
 ];
 const Q=[
- {id:1,ch:0,t:"Prima cosa: perché sei qui?",o:["Voglio capire perché non ingrano","Curiosità, me l'ha mandato qualcuno","Sto bene, voglio spingere di più","Sono in un momento no"]},
  {id:2,ch:0,t:"Se ti capita di svegliarti nel cuore della notte e la testa parte da sola: dove va, di solito?",o:["Alla lista delle cose da fare domani","A un errore vecchio, una figuraccia, una cosa detta male","Al futuro: soldi, tempo, dove sto andando","Da nessuna parte. Crollo e dormo"]},
- {id:3,ch:0,t:"Quando sai per certo che una cosa ti fa bene, poi la fai?",o:["Praticamente sempre","Spesso","A fasi: due settimane sì, poi sparisce","Raramente, e lo so da solo"],s:[0,1,2,3],d:1},
+ {id:3,ch:0,t:"Quando sai per certo che una cosa ti fa bene, poi la fai?",o:["Quasi sempre. Non perfetto, ma la faccio","Spesso, se la vita non si mette in mezzo","A fasi: parto convinto, poi si perde per strada","Raramente. E non è che non lo so"],s:[0,1,2,3],d:1},
  {id:4,ch:0,t:"Quando tutto il resto spinge, qual è la cosa che difendi coi denti?",o:["Il sonno","L'allenamento","Il tempo per la mia testa","Le persone a cui tengo"]},
- {id:5,ch:0,t:"Quando lavori a una cosa che conta, il tuo focus com'è?",o:["Tunnel. Sparisco, non esisto per nessuno","Buono, se l'ambiente mi aiuta","A onde: dieci minuti dentro, cinque fuori","Focus è una parola grossa"],s:[0,1,2,3],d:4},
- {id:6,ch:0,t:"Che posto ha l'imparare cose nuove nella tua vita?",o:["È parte di chi sono, non riesco a smettere","Mi piace, quando trovo roba buona","A ondate: mi fisso, poi mollo","Poco. Vivo, più che studiare"],s:[0,1,2,3],d:2},
+ {id:5,ch:0,t:"Quando lavori a una cosa che conta, il tuo focus com'è?",o:["Tunnel. Sparisco, il mondo aspetta fuori","Buono, se l'ambiente collabora","A onde: un po' dentro, un po' fuori, di nuovo dentro","Focus è una parola grossa, ultimamente"],s:[0,1,2,3],d:4},
+ {id:6,ch:0,t:"Che posto ha l'imparare cose nuove nella tua vita?",o:["È parte di chi sono, non riesco a smettere","Mi piace, quando trovo roba che vale","A ondate: periodi che divoro tutto, periodi niente","Poco, sinceramente. Vivo, più che studiare"],s:[0,1,2,3],d:2},
  {id:7,ch:0,t:"Un amico molla tutto. Di nuovo. Te lo dice a cena: tu che gli rispondi?",o:["Lo ascolto e basta, capita","Gli ricordo che non è la fine del mondo","Lo aiuto a capire dove si è rotto","Gli dico quello che nessuno gli dice"]},
- {id:8,ch:0,t:"Tra tre anni. Quanto è chiara l'immagine di dove vuoi essere?",o:["Nitida, la vedo","A grandi linee","Cambia ogni mese","Buio totale"],s:[0,1,2,3],d:5},
- {id:9,ch:1,t:"Ieri sera, gli ultimi trenta minuti prima di chiudere gli occhi. Cosa avevi davanti?",o:["Un libro, o niente","Una serie","Il telefono. Scroll","Lavoro"],s:[0,1,2,3],d:3},
- {id:10,ch:1,t:"Le ultime tre sere, a che ora hai spento davvero?",o:["Prima delle 23","Tra le 23 e mezzanotte","Dopo mezzanotte, almeno una volta","Dopo mezzanotte, tutte e tre"],s:[0,1,2,3],d:3},
- {id:11,ch:1,t:"Stamattina come ti sei alzato?",o:["Carico","Ok, dopo il caffè","Trascinandomi","Non ricordo l'ultima volta che mi sono svegliato riposato"],s:[0,1,2,3],d:3},
- {id:12,ch:1,t:"L'ultima volta che hai fatto una cosa importante: quante volte hai preso in mano il telefono?",o:["Zero, era in un'altra stanza","Un paio","Ho perso il conto","Il telefono era la cosa importante"],s:[0,1,2,3],d:4},
- {id:13,ch:1,t:"Quanto resisti su una cosa sola prima di aprire un'altra scheda, un'altra app, qualsiasi cosa?",o:["Mezz'ora e più","Dieci, quindici minuti","Cinque minuti scarsi","Non me ne accorgo nemmeno più"],s:[0,1,2,3],d:4},
- {id:14,ch:1,t:"Ieri, in che momento eri al massimo dell'energia?",o:["Mattina presto","Tarda mattinata / pomeriggio","Sera tardi","Mai. Ieri è stata una giornata piatta"],s:[0,1,2,3],d:3},
- {id:15,ch:1,t:"Di tutte le ore sveglio di ieri, quante le rifaresti uguali?",o:["Quasi tutte","Più della metà","Poche","Ieri è passato e basta"],s:[0,1,2,3],d:4},
- {id:16,ch:2,t:"Quanti contenuti su crescita, produttività, salute ti passano davanti in una settimana?",o:["Quasi zero","Un paio, scelti","Sono il mio sottofondo fisso","A 2x, mentre faccio altro"],s:[0,1,2,3],d:2},
- {id:17,ch:2,t:"Pensa all'ultimo podcast o libro di crescita che hai finito. C'è una cosa che hai applicato e che fai ancora oggi?",o:["Ce l'ho, precisa","L'ho applicata per un po', poi si è persa","Ricordo il concetto, ma non l'ho mai provato","Non ricordo nemmeno l'ultimo che ho sentito"],s:[0,1,2,3],d:2},
- {id:18,ch:2,t:"I tuoi salvati. Video, articoli, post “da riguardare”. Quanti ne hai riaperti?",o:["Li riapro e li uso","Qualcuno","È un cimitero","Non salvo niente, tanto lo so come finisce"],s:[0,1,2,3],d:2},
- {id:19,ch:2,t:"C'è una cosa che sai da almeno un anno che dovresti fare. E non la fai.",o:["Sì. E so anche perché non la faccio","Sì. E non ho idea del perché non parte","Più di una","No: quando so una cosa, la faccio"],s:[2,3,3,0],d:1},
- {id:20,ch:2,t:"Trovi un metodo nuovo che ti convince. Cosa succede nei tre giorni dopo?",o:["Lo provo subito, e mollo quello di prima","Lo metto in lista","Lo salvo","Ne parlo con qualcuno e finisce lì"],s:[1,2,2,3],d:1},
- {id:21,ch:2,t:"Le abitudini che hai provato a costruire nell'ultimo anno. Quante sono ancora vive oggi?",o:["Poche, ma vive","Diverse. Qualcuna regge","Tante. Sopravvissute quasi zero","A un certo punto ho smesso anche di iniziare"],s:[0,1,2,3],d:1},
- {id:22,ch:3,t:"Sbagli una cosa che contava. La prima frase che ti parte in testa, quella vera?",o:["Niente. Non ci penso e vado avanti","“Sono sempre il solito”","“Lo sapevo”","“Ok. Cosa sistemo?”"],s:[2,3,2,0],d:6},
- {id:23,ch:3,t:"C'è una cosa che rimandi non perché è difficile, ma perché ti mette a disagio. Quanto le giri intorno?",o:["Non ce l'ho, le cose scomode le faccio prima","Ogni tanto ci ripenso e la sposto","Ci giro intorno da settimane","Ci giro intorno da così tanto che ormai fa parte del panorama"],s:[0,1,2,3],d:6},
- {id:24,ch:3,t:"Quando le cose vanno bene per un po', la tua testa cosa fa?",o:["Si annoia e va a cercarsi un casino nuovo","Trova il difetto","Aspetta che arrivi il problema","Se le gode"],s:[3,2,2,0],d:6},
- {id:25,ch:3,t:"Rispetto a chi ti senti più spesso indietro?",o:["A nessuno, corro la mia gara","Ai colleghi o agli amici","A gente che nemmeno conosco, vista online","A una versione di me che non arriva mai"],s:[0,1,2,3],d:6},
+ {id:8,ch:0,t:"Tra tre anni. Quanto è chiara l'immagine di dove vuoi essere?",o:["Nitida. La vedo, coi dettagli","A grandi linee. La direzione c'è","Cambia ogni mese, a seconda del periodo","Buio. Non riesco nemmeno a immaginarla"],s:[0,1,2,3],d:5},
+ {id:9,ch:1,t:"Ieri sera, gli ultimi trenta minuti prima di chiudere gli occhi. Cosa avevi davanti?",o:["Un libro, due chiacchiere, o niente","Una serie, un film, qualcosa in TV","Il telefono. Scroll, chat, un po' di tutto","Lavoro, o pensieri di lavoro"],s:[0,1,2,3],d:3},
+ {id:10,ch:1,t:"Le ultime tre sere, a che ora hai spento davvero?",o:["Prima delle 23, più o meno","Tra le 23 e mezzanotte","Dopo mezzanotte, almeno una sera","Dopo mezzanotte, praticamente sempre"],s:[0,1,2,3],d:3},
+ {id:11,ch:1,t:"Stamattina come ti sei alzato?",o:["Carico, o quasi","Normale. Il caffè fa il resto","Trascinandomi, ma sono partito","Non ricordo l'ultima volta che mi sono svegliato riposato"],s:[0,1,2,3],d:3},
+ {id:12,ch:1,t:"L'ultima volta che hai fatto una cosa importante: quante volte hai preso in mano il telefono?",o:["Zero, o quasi: era lontano","Un paio di volte, poi basta","Ho perso il conto","A ripensarci, il telefono era la cosa importante"],s:[0,1,2,3],d:4},
+ {id:13,ch:1,t:"Quanto resisti su una cosa sola prima di aprire un'altra scheda, un'altra app, qualsiasi cosa?",o:["Mezz'ora e più, se serve","Dieci, quindici minuti buoni","Cinque minuti, a essere generosi","Non me ne accorgo nemmeno più: cambio e basta"],s:[0,1,2,3],d:4},
+ {id:14,ch:1,t:"Ieri, in che momento eri al massimo dell'energia?",o:["Mattina presto, appena in piedi","In giornata: tarda mattinata o pomeriggio","Sera, quando il resto si spegne","Mai. Ieri è stata piatta dall'inizio alla fine"],s:[0,1,2,3],d:3},
+ {id:15,ch:1,t:"Di tutte le ore sveglio di ieri, quante le rifaresti uguali?",o:["Quasi tutte","Più della metà","Poche. Il grosso è scivolato via","Ieri è passato e basta"],s:[0,1,2,3],d:4},
+ {id:16,ch:2,t:"Quanti contenuti su crescita, produttività, salute ti passano davanti in una settimana?",o:["Quasi zero. Non è il mio mondo","Qualcuno, scelto. So cosa sto guardando","Parecchi. Sono il mio sottofondo fisso","Tantissimi, spesso a 2x mentre faccio altro"],s:[0,1,2,3],d:2},
+ {id:17,ch:2,t:"Pensa all'ultimo podcast o libro di crescita che hai finito. C'è una cosa che hai applicato e che fai ancora oggi?",o:["Sì, almeno una. E la faccio ancora","L'ho applicata per un po'. Poi la vita, e si è persa","Il concetto lo ricordo. Provarlo, mai davvero","Non saprei nemmeno dirti l'ultimo che ho finito"],s:[0,1,2,3],d:2},
+ {id:18,ch:2,t:"I tuoi salvati. Video, articoli, post “da riguardare”. Quanti ne hai riaperti?",o:["Li riapro. Non tutti, ma li uso","Qualcuno l'ho ripreso. La minoranza","Quasi nessuno. È un cimitero","Non salvo niente, tanto so già come finisce"],s:[0,1,2,3],d:2},
+ {id:19,ch:2,t:"C'è una cosa che sai da almeno un anno che dovresti fare. E non la fai.",o:["Sì. E il motivo per cui non parte lo conosco pure","Sì. E non ho capito nemmeno io perché resta lì","Più di una. Ho smesso di contarle","No: se una cosa la so, prima o poi la faccio"],s:[2,3,3,0],d:1},
+ {id:20,ch:2,t:"Trovi un metodo nuovo che ti convince. Cosa succede nei tre giorni dopo?",o:["Lo provo subito, anche a costo di mollare quello di prima","Lo metto in lista, con le migliori intenzioni","Lo salvo da qualche parte, e lì resta","Ne parlo, ci penso, e piano piano svanisce"],s:[1,2,2,3],d:1},
+ {id:21,ch:2,t:"Le abitudini che hai provato a costruire nell'ultimo anno. Quante sono ancora vive oggi?",o:["Quelle che contavano reggono ancora","Un po' e un po'. Qualcuna è viva","Ne ho iniziate tante. Ne sarà rimasta una","A un certo punto ho smesso anche di iniziare"],s:[0,1,2,3],d:1},
+ {id:22,ch:3,t:"Sbagli una cosa che contava. La prima frase che ti parte in testa, quella vera?",o:["Niente di particolare. La chiudo lì e vado avanti","“Sono sempre il solito”, o una variante sua","“Lo sapevo”. Quasi con soddisfazione","“Ok. Cosa sistemo?”"],s:[2,3,2,0],d:6},
+ {id:23,ch:3,t:"C'è una cosa che rimandi non perché è difficile, ma perché ti mette a disagio. Quanto le giri intorno?",o:["Non ce l'ho: le cose scomode le tolgo di mezzo per prime","Ce l'ho. Ogni tanto la guardo, poi la risposto","Ci giro intorno da settimane, forse mesi","Ci giro intorno da così tanto che ormai fa parte del panorama"],s:[0,1,2,3],d:6},
+ {id:24,ch:3,t:"Quando le cose vanno bene per un po', la tua testa cosa fa?",o:["Si annoia e va a cercarsi un casino nuovo","Trova il difetto. C'è sempre","Aspetta. Prima o poi qualcosa si rompe","Se le gode, finché dura"],s:[3,2,2,0],d:6},
+ {id:25,ch:3,t:"Rispetto a chi ti senti più spesso indietro?",o:["A nessuno in particolare. Corro la mia gara","A colleghi, amici, gente che conosco davvero","A gente vista online, che nemmeno conosco","A una versione di me che non arriva mai"],s:[0,1,2,3],d:6},
  {id:26,ch:3,t:"Scrivi la frase esatta che ti dici quando molli qualcosa. Le parole vere, come te le dici in testa.",open:true},
- {id:27,ch:4,t:"Questa settimana hai fatto qualcosa che ti avvicina a dove vuoi essere tra tre anni?",o:["Più d'una cosa","Una, precisa","La settimana è stata piena, ma di altro","Non saprei"],s:[0,1,2,3],d:5},
- {id:28,ch:4,t:"Le tue giornate si riempiono comunque, di tanto o di poco. Di cosa, di solito?",o:["Non lo so nemmeno io","Di cose che mi sono piovute addosso","Metà scelte, metà arrivate addosso","Di cose che ho scelto io"],s:[3,2,1,0],d:5},
- {id:29,ch:4,t:"Se da domani avessi tre ore libere al giorno, garantite: sai già cosa ci faresti?",o:["Sì, al minuto","Un'idea ce l'ho","Le riempirei come riempio le altre","Onestamente? Panico"],s:[0,1,2,3],d:5},
- {id:30,ch:4,t:"Dove vuoi essere tra tre anni? Una riga. Se ti esce vaga, scrivila vaga: anche quello dice qualcosa.",open:true},
- {id:31,ch:4,t:"Ultima. Tra un attimo vedi il tuo profilo. Se ti becca davvero, tu che ne fai?",o:["Ci lavoro, da domani","Lo leggo e ci penso","Lo faccio fare a qualcuno che mi conosce, poi ci confrontiamo","Niente, era curiosità"]}
+ {id:27,ch:4,t:"Questa settimana hai fatto qualcosa che ti avvicina a dove vuoi essere tra tre anni?",o:["Più d'una cosa, se ci penso","Una, precisa. Piccola ma vera","La settimana era piena, ma di altro","Non saprei dirne una"],s:[0,1,2,3],d:5},
+ {id:28,ch:4,t:"Le tue giornate si riempiono comunque, di tanto o di poco. Di cosa, di solito?",o:["Non lo so nemmeno io. Passano e basta","Di cose piovute addosso: richieste, urgenze, imprevisti","Metà scelte da me, metà arrivate da fuori","Quasi tutte cose che ho scelto io"],s:[3,2,1,0],d:5},
+ {id:29,ch:4,t:"Se da domani avessi tre ore libere al giorno, garantite: sai già cosa ci faresti?",o:["Sì, lo so già. Anche da dove comincerei","Un'idea ce l'ho, da mettere a fuoco","Temo che si riempirebbero come tutte le altre","Onestamente? Un po' di panico"],s:[0,1,2,3],d:5},
+ {id:30,ch:4,t:"Dove vuoi essere tra tre anni? Una riga. Se ti esce vaga, scrivila vaga: anche quello dice qualcosa.",open:true}
 ];
 
 const DIMS={1:"Azione",2:"Pratica",3:"Energia",4:"Attenzione",5:"Direzione",6:"Dialogo interno"};
@@ -362,7 +362,7 @@ const HOOKS=[
 /* coppie: [nome, condizione(ans,score), dim, testo(ans)] */
 const PAIRS=[
  {k:"A",dim:3,test:a=>a[4]===0&&(a[9]>=2||a[10]>=2),
-  txt:a=>`Hai detto che il sonno è la cosa che difendi coi denti. Poi ieri sera gli ultimi trenta minuti erano ${a[9]===2?"di scroll":a[9]===3?"di lavoro":"davanti a uno schermo"}, e hai spento ${["prima delle 23","tra le 23 e mezzanotte","dopo mezzanotte, almeno una sera","dopo mezzanotte, tutte e tre le sere"][a[10]]}. Coi denti, dicevi.`},
+  txt:a=>`Hai detto che il sonno è la cosa che difendi coi denti. Poi ieri sera gli ultimi trenta minuti erano ${a[9]===2?"di scroll":a[9]===3?"di lavoro":"davanti a uno schermo"}, e hai spento ${["prima delle 23","tra le 23 e mezzanotte","dopo mezzanotte, almeno una sera","dopo mezzanotte, praticamente tutte le sere"][a[10]]}. Coi denti, dicevi.`},
  {k:"B",dim:4,test:a=>a[5]<=1&&(a[12]>=2||a[13]>=2),
   txt:a=>`Ti sei descritto come uno ${a[5]===0?"da tunnel":"dal focus buono"}. Poi, sull'ultima cosa importante, ${a[12]===2?"hai perso il conto delle volte che hai preso il telefono":a[12]===3?"il telefono era la cosa importante":"resisti pochi minuti prima di aprire altro"}. Il tunnel ha parecchie uscite.`},
  {k:"C",dim:2,test:a=>a[6]<=1&&(a[17]>=2||a[18]===2),
@@ -372,7 +372,7 @@ const PAIRS=[
  {k:"E",dim:6,test:a=>(a[7]===0||a[7]===1)&&a[22]>=1&&a[22]<=2,
   txt:a=>`All'amico che molla diresti “${a[7]===0?"capita":"non è la fine del mondo"}”. A te stesso dici “${a[22]===1?"sono sempre il solito":"lo sapevo"}”. Con tutti sei gentile, tranne che con uno.`},
  {k:"F",dim:5,test:a=>a[8]<=1&&a[27]>=2,
-  txt:a=>`L'immagine dei tre anni ${a[8]===0?"la vedi nitida":"ce l'hai a grandi linee"}. Poi questa settimana, di passi verso quell'immagine: ${a[27]===2?"la settimana era piena, ma di altro":"non sapresti dirne uno"}. Hai la mappa appesa al muro e il motore spento.`}
+  txt:a=>`L'immagine dei tre anni ${a[8]===0?"la vedi nitida":"ce l'hai a grandi linee"}. Poi questa settimana, di passi verso quell'immagine: ${a[27]===2?"la settimana era piena, ma di altro":"non sapresti dirne una"}. Hai la mappa appesa al muro e il motore spento.`}
 ];
 /* tutte le condizioni delle PAIRS lavorano sugli INDICI di risposta, mai sugli score */
 
@@ -432,6 +432,7 @@ function splitLetters(el){
 /* progress bar */
 const progEl=$("#prog");
 CHAPTERS.forEach(()=>{const s=document.createElement("div");s.className="seg";s.innerHTML="<i></i>";progEl.appendChild(s);});
+let progLast=-1; /* avanzamento cumulato: per pulsare solo quando la barra cresce davvero */
 function updProg(){
   const cur=flow[pos];if(!cur)return;
   const ci=cur.type==='chapter'?cur.ch:cur.q.ch;
@@ -439,8 +440,18 @@ function updProg(){
   const inCh=Q.filter(q=>q.ch===ci);
   const done=inCh.filter(q=>ans[q.id]!==undefined||openTxt[q.id]!==undefined).length;
   document.querySelectorAll(".seg i").forEach((el,i)=>{
-    gsap.to(el,{width:(i<ci?100:i===ci?(done/inCh.length)*100:0)+"%",duration:.5*D,overwrite:"auto"});
+    gsap.to(el,{width:(i<ci?100:i===ci?(done/inCh.length)*100:0)+"%",duration:.7*D,ease:"power3.out",overwrite:"auto"});
   });
+  /* micro-feedback: il segmento del capitolo corrente si ispessisce un attimo quando avanzi.
+     Solo transform: con reduced-motion (D<1) resta il riempimento istantaneo e basta. */
+  const now=ci*100+(done/inCh.length)*100;
+  if(D>=1&&progLast>=0&&now>progLast){
+    const seg=document.querySelectorAll(".seg")[ci];
+    if(seg)gsap.timeline({defaults:{overwrite:"auto",transformOrigin:"center"}})
+      .to(seg,{scaleY:2.4,duration:.14,ease:"power2.out"})
+      .to(seg,{scaleY:1,duration:.5,ease:"power2.inOut"});
+  }
+  progLast=now;
 }
 
 /* ============ INTRO ============ */
@@ -461,26 +472,42 @@ function startIntro(){
 /* aurora nel wordmark: ogni lettera mostra la sua fetta di un gradiente unico largo quanto la parola */
 function paintWordmark(letters){
   const word=$("#bword");
+  let driftStarted=false;
   const paint=()=>{
-    /* fette calcolate ACCUMULANDO le larghezze di layout: immune a transform e a offsetParent */
+    /* fette calcolate ACCUMULANDO le larghezze di layout: immune a transform e a offsetParent.
+       L'offset di ogni lettera è scritto come valore letterale (px) dentro background-position,
+       MAI come custom property per-lettera: alcune versioni WebKit non ridipingono in modo
+       affidabile un background-position guidato da --custom-property per elemento. */
     const w=Math.max(1,word.offsetWidth);
     const M=Math.round(w*.25); /* margine di riserva: la deriva (±9%) non scopre mai le lettere */
     const LS=parseFloat(getComputedStyle(word).letterSpacing)||0;
     let acc=0;
     letters.forEach(sp=>{
       sp.style.backgroundSize=Math.round(w*1.5)+"px 100%";
-      sp.style.setProperty("--off",(-(M+acc))+"px");
+      sp.style.backgroundPosition=`calc(var(--gx,0px) + ${-(M+acc)}px) 50%`;
       acc+=sp.offsetWidth+LS;
     });
-    if(D>=1){ /* deriva lenta + shimmer di tinta: il gradiente respira dentro le lettere */
+    if(D>=1&&!driftStarted){ /* deriva lenta + shimmer di tinta: il gradiente respira dentro le lettere (una sola volta) */
+      driftStarted=true;
       gsap.fromTo(word,{"--gx":(-Math.round(w*.09))+"px"},{"--gx":Math.round(w*.09)+"px",duration:6,yoyo:true,repeat:-1,ease:"sine.inOut",overwrite:"auto"});
       gsap.to(word,{filter:"hue-rotate(18deg)",duration:4,yoyo:true,repeat:-1,ease:"sine.inOut",overwrite:"auto"});
-    }else{
+    }else if(D<1){
       word.style.setProperty("--gx","0px");
     }
   };
   paint();
-  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(paint);
+  /* Safari: document.fonts.ready a volte risolve prima che il font sia realmente applicato al
+     layout (bug noto WebKit). Forziamo anche il caricamento esplicito del font usato dal wordmark,
+     con un timeout di sicurezza — in ogni caso la vera garanzia è il ripaint finale appena prima
+     della rivelazione, vedi runSplash(). */
+  if(document.fonts){
+    const want=`600 100px "Space Grotesk"`;
+    Promise.race([
+      document.fonts.load(want).then(()=>document.fonts.ready).catch(()=>{}),
+      new Promise(res=>setTimeout(res,1500))
+    ]).then(paint);
+  }
+  return paint; /* esposta: runSplash la richiama una volta di sicurezza subito prima della rivelazione */
 }
 
 /* ============ SPLASH: carica e rilascio → wordmark → intro ============ */
@@ -488,7 +515,7 @@ function runSplash(){
   const coil=$("#coil");
   show("#brand");
   const letters=splitLetters($("#bword"));
-  paintWordmark(letters);
+  const repaintWordmark=paintWordmark(letters);
   gsap.set(letters,{scale:2.4,autoAlpha:0});
   gsap.set(["#brand .btag","#brand .bcorner"],{autoAlpha:0,y:12});
   gsap.set("#photo",{scale:1.1});
@@ -506,7 +533,12 @@ function runSplash(){
     .to(coil,{scaleY:60,autoAlpha:0,duration:.4*D,ease:"power2.out"},"<")
     .add(()=>{$("#splash").remove();})
     .add("brandin")
+    /* ripaint di garanzia: ~2.5s dopo il load il font è quasi certamente pronto, indipendentemente
+       da eventuali bug/ritardi di document.fonts.ready — misura e ridipinge un'ultima volta con il
+       layout REALE presente in quell'istante, subito prima che le lettere diventino visibili */
+    .add(repaintWordmark,"brandin")
     .to(letters,{scale:1,autoAlpha:1,duration:.55*D,stagger:.055*D,ease:"back.out(2.2)"},"brandin")
+    .add(repaintWordmark,"brandin+=.6") /* seconda rete di sicurezza se il font arriva più tardi del previsto */
     .to("#brand",{keyframes:{x:[0,-5,4,-2,0]},duration:.35*D,ease:"power2.out"},"brandin+=.5")
     .to("#photo",{scale:1,duration:3*D,ease:"power2.out"},"brandin")
     .to("#brand .btag",{autoAlpha:1,y:0,duration:.5*D},"brandin+=.8")
@@ -560,7 +592,7 @@ function showChapter(ci){
 
 function showQuestion(q){
   busy=false;
-  $("#q-num").textContent=`Domanda ${q.id} di ${Q.length}`;
+  $("#q-num").textContent=`Domanda ${Q.indexOf(q)+1} di ${Q.length}`; /* posizione nel flusso: gli id restano stabili per ans/PAIRS */
   $("#q-text").textContent=q.t;
   const box=$("#q-opts");box.innerHTML="";$("#q-count").textContent="";
   const next=$("#q-next");next.classList.remove("on");
@@ -685,7 +717,7 @@ function buildProfile(){
     $("#p-contr-more").textContent=cparts.join(" ");
   }else{
     const drop=(openTxt[26]||"").trim();
-    $("#p-contr").textContent=drop?`Le tue risposte tengono insieme. Nessuna crepa da mostrarti — è raro. Ma una prova l'hai scritta tu, alla domanda 26: “${drop}”. Se quella frase esiste, la crepa la conosci già. Io non la vedo dalle caselle. Tu sì.`:"Le tue risposte tengono insieme. Nessuna crepa da mostrarti — è raro. O ti conosci davvero, o hai risposto con la versione di te che conosci a memoria. Lo sai solo tu.";
+    $("#p-contr").textContent=drop?`Le tue risposte tengono insieme. Nessuna crepa da mostrarti — è raro. Ma una prova l'hai scritta tu, alla domanda ${Q.findIndex(x=>x.id===26)+1}: “${drop}”. Se quella frase esiste, la crepa la conosci già. Io non la vedo dalle caselle. Tu sì.`:"Le tue risposte tengono insieme. Nessuna crepa da mostrarti — è raro. O ti conosci davvero, o hai risposto con la versione di te che conosci a memoria. Lo sai solo tu.";
     $("#p-contr-more").textContent="";
   }
   /* le parole scritte a mano dall'utente tornano nel profilo: è quello che nessun test fa */
