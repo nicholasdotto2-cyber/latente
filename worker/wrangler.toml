@@ -1,0 +1,18 @@
+name = "latente-worker"
+main = "src/index.js"
+compatibility_date = "2026-07-09"
+
+# KV namespace per lead + eventi. Riempire "id" e "preview_id" con
+# quelli generati da `wrangler kv namespace create DB` (vedi README).
+kv_namespaces = [
+  { binding = "DB", id = "<DA-RIEMPIRE>", preview_id = "<DA-RIEMPIRE>" }
+]
+
+[vars]
+# Origine consentita per CORS. In produzione va ristretta al dominio
+# GitHub Pages, es. "https://nicholasdotto2-cyber.github.io".
+ALLOW_ORIGIN = "*"
+
+# STATS_SECRET NON va qui: e' un secret, si imposta con
+#   wrangler secret put STATS_SECRET
+# (vedi README).
